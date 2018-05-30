@@ -137,59 +137,72 @@ class TravelChart @JvmOverloads constructor(
         canvas.translate(paddingLeft.toFloat(), paddingTop.toFloat())
 
         if (data != null) {
-
-            // draw curve
-            val drawCurveSaveCount = canvas.save()
-
-            // 获取绘制曲线的区域
-
-            val drawCurvePaddingLeft = 0f
-            val drawCurvePaddingRight = 0f
-            val drawCurvePaddingTop = 50f
-            val drawCurvePaddingBottom = 50f
-
-            val drawCurveWidth = validWidth - drawCurvePaddingLeft - drawCurvePaddingRight
-            val drawCurveHeight = validHeight - drawCurvePaddingTop - drawCurvePaddingBottom
-
-            canvas.translate(drawCurvePaddingLeft, drawCurvePaddingTop)
-
-            // FIXME: 2018/5/30 fanhl 只绘制屏幕内的数据
-
-            val list = data!!.list
-            val yMin = list.min
-            val yMax = list.max
-            val iterator = list.iterator()
-            if (iterator.hasNext()) {
-                run {
-                    val vector2 = dataParser.parseItem(iterator.next())
-
-                    path.reset()
-                    val (x, y) = projectionToCanvas(drawCurveWidth, drawCurveHeight, vector2, yMin, yMax)
-                    path.moveTo(x, y)
-                }
-
-                //验证有多个点
-                var isLine = false
-
-                while (iterator.hasNext()) {
-                    val vector2 = dataParser.parseItem(iterator.next())
-                    val (x, y) = projectionToCanvas(drawCurveWidth, drawCurveHeight, vector2, yMin, yMax)
-                    path.lineTo(x, y)
-                    isLine = true
-                }
-
-                if (isLine) {
-                    canvas.drawPath(path, paint)
-                }
-            }
-
-            canvas.restoreToCount(drawCurveSaveCount)
+            drawCurve(canvas, validWidth, validHeight)
 
             //draw current center hint
-            canvas.drawLine((validWidth / 2).toFloat(), 0F, (validWidth / 2).toFloat(), validHeight.toFloat(), paint)
+            drawCenterHint(canvas, validWidth, validHeight)
         }
 
         canvas.restoreToCount(saveCount)
+    }
+
+    /**
+     * 绘制曲线
+     */
+    private fun drawCurve(canvas: Canvas, validWidth: Int, validHeight: Int) {
+        // draw curve
+        val drawCurveSaveCount = canvas.save()
+
+        // 获取绘制曲线的区域
+
+        val drawCurvePaddingLeft = 0f
+        val drawCurvePaddingRight = 0f
+        val drawCurvePaddingTop = 50f
+        val drawCurvePaddingBottom = 50f
+
+        val drawCurveWidth = validWidth - drawCurvePaddingLeft - drawCurvePaddingRight
+        val drawCurveHeight = validHeight - drawCurvePaddingTop - drawCurvePaddingBottom
+
+        canvas.translate(drawCurvePaddingLeft, drawCurvePaddingTop)
+
+        // FIXME: 2018/5/30 fanhl 只绘制屏幕内的数据
+
+        val list = data!!.list
+        val yMin = list.min
+        val yMax = list.max
+        val iterator = list.iterator()
+        if (iterator.hasNext()) {
+            run {
+                val vector2 = dataParser.parseItem(iterator.next())
+
+                path.reset()
+                val (x, y) = projectionToCanvas(drawCurveWidth, drawCurveHeight, vector2, yMin, yMax)
+                path.moveTo(x, y)
+            }
+
+            //验证有多个点
+            var isLine = false
+
+            while (iterator.hasNext()) {
+                val vector2 = dataParser.parseItem(iterator.next())
+                val (x, y) = projectionToCanvas(drawCurveWidth, drawCurveHeight, vector2, yMin, yMax)
+                path.lineTo(x, y)
+                isLine = true
+            }
+
+            if (isLine) {
+                canvas.drawPath(path, paint)
+            }
+        }
+
+        canvas.restoreToCount(drawCurveSaveCount)
+    }
+
+    /**
+     * 绘制水平居中的提示线等
+     */
+    private fun drawCenterHint(canvas: Canvas, validWidth: Int, validHeight: Int) {
+        canvas.drawLine((validWidth / 2).toFloat(), 0F, (validWidth / 2).toFloat(), validHeight.toFloat(), paint)
     }
 
     /**
