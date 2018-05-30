@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget_Travel_Chart">
+        <item name="xInterval">@dimen/xInterval_default</item>
+    </style>
+</resources>

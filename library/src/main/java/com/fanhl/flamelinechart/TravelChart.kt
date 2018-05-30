@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
+import com.fanhl.flamelinechart.R
 import java.util.*
 
 
@@ -53,7 +54,13 @@ class TravelChart @JvmOverloads constructor(
         paint.isAntiAlias = true
         paint.color = Color.RED
 
-        xInterval = 20
+        val resources = context.resources
+        val a = context.obtainStyledAttributes(attrs, R.styleable.TravelChart, defStyleAttr, R.style.Widget_Travel_Chart)
+
+        xInterval = a.getDimensionPixelOffset(R.styleable.TravelChart_xInterval, resources.getDimensionPixelOffset(R.dimen.xInterval_default))
+
+        a.recycle()
+
 
         if (isInEditMode) {
             dataParser = object : TravelChart.DataParser {
