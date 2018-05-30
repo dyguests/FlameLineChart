@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Scroller
 import com.fanhl.flamelinechart.R
@@ -48,6 +49,12 @@ class TravelChart @JvmOverloads constructor(
 
     /** 居中的X的值 */
     private var centerX = 0
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+        }
     /** 居中的X的偏移值 in (-1,1) */
     private var centerXOffset = 0f
 
@@ -100,6 +107,10 @@ class TravelChart @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {
