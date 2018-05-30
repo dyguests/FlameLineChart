@@ -75,7 +75,7 @@ class TravelChart @JvmOverloads constructor(
                     fun add(x: Float, y: Float) {
                         add(DefaultItem(x, y))
                     }
-                    add(0f, 1f)
+                    add(0f, 123f)
                     add(1f, 200f)
                     add(2f, 5f)
                     add(3f, 400f)
@@ -83,6 +83,12 @@ class TravelChart @JvmOverloads constructor(
                     add(5f, 20f)
                     add(6f, 20f)
                     add(7f, 200f)
+                    add(8f, 200f)
+                    add(9f, 300f)
+                    add(10f, 400f)
+                    add(11f, 200f)
+                    add(12f, 300f)
+                    add(13f, 400f)
                 }
             }
         }
