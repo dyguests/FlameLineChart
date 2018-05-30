@@ -192,7 +192,7 @@ class TravelChart @JvmOverloads constructor(
             yBound = 1f // 给定一个最小值
         }
 
-        var yPercent = (vector2.y - yMin) / yBound
+        val yPercent = (vector2.y - yMin) / yBound
 
         val x = width / 2 + (vector2.x - centerX - centerXOffset) * xInterval
         val y = (1 - yPercent) * height

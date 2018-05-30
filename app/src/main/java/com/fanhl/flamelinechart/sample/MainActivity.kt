@@ -8,6 +8,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    var centerX = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         fab_scroll.setOnClickListener {
-            chart_travel.changeCenterX(3)
+            chart_travel.changeCenterX(centerX++)
         }
     }
 
