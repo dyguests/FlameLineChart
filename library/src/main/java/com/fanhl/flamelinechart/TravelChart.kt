@@ -184,6 +184,9 @@ class TravelChart @JvmOverloads constructor(
             }
 
             canvas.restoreToCount(drawCurveSaveCount)
+
+            //draw current center hint
+            canvas.drawLine((validWidth / 2).toFloat(), 0F, (validWidth / 2).toFloat(), validHeight.toFloat(), paint)
         }
 
         canvas.restoreToCount(saveCount)
