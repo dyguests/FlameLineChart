@@ -25,6 +25,9 @@ class TravelChart @JvmOverloads constructor(
 
     // --------------------------------- 输入 ---------------------------
 
+    /** 水平两个坐标点的间距 */
+    var xInterval = 0
+
     var data: Data<*>? = null
         set(value) {
             field = value
@@ -39,11 +42,18 @@ class TravelChart @JvmOverloads constructor(
 
     // --------------------------------- 运算 ---------------------------------
 
+    /** 居中的X的值 */
+    private var centerX = 0
+    /** 居中的X的偏移值 in (-1,1) */
+    private var centerXOffset = 0f
+
     init {
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 3f
         paint.isAntiAlias = true
         paint.color = Color.RED
+
+        xInterval = 20
 
         if (isInEditMode) {
             dataParser = object : TravelChart.DataParser {
