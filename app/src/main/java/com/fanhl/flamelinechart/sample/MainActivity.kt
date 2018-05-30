@@ -40,6 +40,20 @@ class MainActivity : AppCompatActivity() {
                 add(11f, 200f)
                 add(12f, 300f)
                 add(13f, 400f)
+                add(14f, 123f)
+                add(15f, 200f)
+                add(16f, 5f)
+                add(17f, 400f)
+                add(18f, 100f)
+                add(19f, 20f)
+                add(20f, 20f)
+                add(21f, 200f)
+                add(22f, 200f)
+                add(23f, 300f)
+                add(24f, 400f)
+                add(25f, 200f)
+                add(26f, 300f)
+                add(27f, 400f)
             }
         }
 

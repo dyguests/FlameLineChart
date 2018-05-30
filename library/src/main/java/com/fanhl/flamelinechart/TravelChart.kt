@@ -61,7 +61,7 @@ class TravelChart @JvmOverloads constructor(
      *  活动的x轴区间
      *  非区间的与区间内的显示不一样。（用来区分各月份的数据）
      */
-    var activeXRange = Range(0f, 5f)
+    var activeXRange = Range(0f, 7f)
 
     init {
         paint.style = Paint.Style.STROKE
