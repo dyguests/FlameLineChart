@@ -1,4 +1,4 @@
-package com.lxt.cfmoto.chart
+package com.fanhl.flamelinechart
 
 import android.content.Context
 import android.graphics.*
@@ -7,8 +7,6 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.OverScroller
-import com.fanhl.flamelinechart.R
-import com.fanhl.flamelinechart.Range
 import java.util.*
 import android.graphics.Shader
 import android.graphics.LinearGradient
@@ -81,14 +79,14 @@ class TravelChart @JvmOverloads constructor(
         a.recycle()
 
         if (isInEditMode) {
-            dataParser = object : TravelChart.DataParser {
+            dataParser = object : DataParser {
                 override fun parseItem(item: IItem): Vector2 {
                     val itemItem = Vector2(item.getXAxis(), item.getYAxis())
 
                     return Vector2(itemItem.x, itemItem.y)
                 }
             }
-            data = TravelChart.Data<DefaultItem>().apply {
+            data = Data<DefaultItem>().apply {
                 list.apply {
                     fun add(x: Float, y: Float) {
                         add(DefaultItem(x, y))
@@ -126,7 +124,8 @@ class TravelChart @JvmOverloads constructor(
             this.centerX = centerX
             this.centerXOffset = centerXOffset
 
-            Log.d(TAG, "computeScroll: centerX:$centerX,centerXOffset:$centerXOffset")
+            activeXRange.start = (centerX - centerX % 7).toFloat()
+            activeXRange.end = (centerX - centerX % 7 + 7).toFloat()
 
             //必须调用该方法，否则不一定能看到滚动效果
             postInvalidate()
@@ -142,9 +141,6 @@ class TravelChart @JvmOverloads constructor(
 
         val saveCount = canvas.save()
         canvas.translate(paddingLeft.toFloat(), paddingTop.toFloat())
-
-        //fixme 把这个移到之前的方法中去
-        paint.shader = LinearGradient(0f, 0f, width.toFloat(), 0f, gradientStart, gradientEnd, Shader.TileMode.MIRROR)
 
         if (data != null) {
             drawCurve(canvas, validWidth, validHeight)
@@ -178,6 +174,27 @@ class TravelChart @JvmOverloads constructor(
         val drawCurveHeight = validHeight - drawCurvePaddingTop - drawCurvePaddingBottom
 
         canvas.translate(drawCurvePaddingLeft, drawCurvePaddingTop)
+
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+
+        //fixme 把shader这个移到之前的方法中去 的实例
+        var shader: Shader = LinearGradient(0f, 0f, drawCurveWidth, 0f, gradientStart, gradientEnd, Shader.TileMode.CLAMP)
+
+        val (activeXPixelRangeStart, activeXPixelRangeEnd) = calculationActiveXPixelRange(drawCurveWidth, drawCurveHeight, activeXRange)
+
+        Log.d(TAG, "drawCurve: activeXPixelRangeStart:$activeXPixelRangeStart,activeXPixelRangeEnd:$activeXPixelRangeEnd")
+
+        if (activeXPixelRangeStart > 0) {
+            val transparentStart = LinearGradient(activeXPixelRangeStart - xInterval, 0f, activeXPixelRangeStart, 0f, 0x22ffffff, Color.WHITE, Shader.TileMode.CLAMP)
+//            val transparentStart = LinearGradient(0f, 0f, 200f, 0f, 0x22ffffff, Color.WHITE, Shader.TileMode.CLAMP)
+            shader = ComposeShader(shader, transparentStart, PorterDuff.Mode.MULTIPLY)
+        }
+        if (activeXPixelRangeEnd < drawCurveWidth) {
+            val transparentEnd = LinearGradient(activeXPixelRangeEnd, 0f, activeXPixelRangeEnd + xInterval, 0f, Color.WHITE, 0x22ffffff, Shader.TileMode.CLAMP)
+//            val transparentEnd = LinearGradient(400f, 0f, 500f, 0f, Color.WHITE, Color.TRANSPARENT, Shader.TileMode.CLAMP)
+            shader = ComposeShader(shader, transparentEnd, PorterDuff.Mode.MULTIPLY)
+        }
+        paint.shader = shader
 
         // FIXME: 2018/5/30 fanhl 只绘制屏幕内的数据
 
@@ -245,6 +262,16 @@ class TravelChart @JvmOverloads constructor(
         val endScrollX = calculationScrollX(centerX, 0f)
         scroller.startScroll(startScrollX, 0, endScrollX - startScrollX, 0)
         invalidate()
+    }
+
+    /**
+     * 将 activeXRange 转换成 activeXPixelRange,将图表的x坐标换算成屏幕上的x pixel 坐标
+     */
+    private fun calculationActiveXPixelRange(width: Float, height: Float, activeXRange: Range): Range {
+        return Range(
+                calculationScrollX((activeXRange.start - centerX).toInt(), -centerXOffset) + width / 2,
+                calculationScrollX((activeXRange.end - centerX).toInt(), -centerXOffset).toFloat() + width / 2
+        )
     }
 
     /**

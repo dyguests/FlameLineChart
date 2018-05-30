@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.lxt.cfmoto.chart.TravelChart
+    <com.fanhl.flamelinechart.TravelChart
         android:id="@+id/chart_travel"
         android:layout_width="0dp"
         android:layout_height="200dp"

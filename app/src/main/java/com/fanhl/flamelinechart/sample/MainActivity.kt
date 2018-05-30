@@ -2,8 +2,8 @@ package com.fanhl.flamelinechart.sample
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.lxt.cfmoto.chart.TravelChart
-import com.lxt.cfmoto.chart.Vector2
+import com.fanhl.flamelinechart.TravelChart
+import com.fanhl.flamelinechart.Vector2
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
