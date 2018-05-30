@@ -2,5 +2,7 @@
 <resources>
     <declare-styleable name="TravelChart">
         <attr name="xInterval" format="dimension"/>
+        <attr name="gradientStart" format="color"/>
+        <attr name="gradientEnd" format="color"/>
     </declare-styleable>
 </resources>

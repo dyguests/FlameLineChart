@@ -1,10 +1,7 @@
 package com.lxt.cfmoto.chart
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -13,6 +10,8 @@ import android.widget.OverScroller
 import com.fanhl.flamelinechart.R
 import com.fanhl.flamelinechart.Range
 import java.util.*
+import android.graphics.Shader
+import android.graphics.LinearGradient
 
 
 /**
@@ -30,9 +29,13 @@ class TravelChart @JvmOverloads constructor(
     private val scroller = OverScroller(context)
 
     // --------------------------------- 输入 ---------------------------
-
     /** 水平两个坐标点的间距 */
     var xInterval = 0
+
+    /** 曲线的水平渐变颜色起始值 */
+    var gradientStart = 0
+    /** 曲线的水平渐变颜色结束值 */
+    var gradientEnd = 0
 
     var data: Data<*>? = null
         set(value) {
@@ -62,7 +65,8 @@ class TravelChart @JvmOverloads constructor(
 
     init {
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 3f
+        paint.strokeJoin = Paint.Join.ROUND
+        paint.strokeWidth = 10f
         paint.isAntiAlias = true
         paint.color = Color.RED
 
@@ -70,6 +74,9 @@ class TravelChart @JvmOverloads constructor(
         val a = context.obtainStyledAttributes(attrs, R.styleable.TravelChart, defStyleAttr, R.style.Widget_Travel_Chart)
 
         xInterval = a.getDimensionPixelOffset(R.styleable.TravelChart_xInterval, resources.getDimensionPixelOffset(R.dimen.x_interval_default))
+
+        gradientStart = a.getColor(R.styleable.TravelChart_gradientStart, resources.getColor(R.color.gradient_start, null))
+        gradientEnd = a.getColor(R.styleable.TravelChart_gradientEnd, resources.getColor(R.color.gradient_start, null))
 
         a.recycle()
 
@@ -136,6 +143,8 @@ class TravelChart @JvmOverloads constructor(
         val saveCount = canvas.save()
         canvas.translate(paddingLeft.toFloat(), paddingTop.toFloat())
 
+        paint.shader = LinearGradient(0f, 0f, width.toFloat(), 0f, gradientStart, gradientEnd, Shader.TileMode.MIRROR)
+
         if (data != null) {
             drawCurve(canvas, validWidth, validHeight)
 
@@ -144,6 +153,10 @@ class TravelChart @JvmOverloads constructor(
         }
 
         canvas.restoreToCount(saveCount)
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     /**

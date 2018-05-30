@@ -3,5 +3,7 @@
 
     <style name="Widget_Travel_Chart">
         <item name="xInterval">@dimen/x_interval_default</item>
+        <item name="gradientStart">@color/gradient_start</item>
+        <item name="gradientEnd">@color/gradient_end</item>
     </style>
 </resources>
