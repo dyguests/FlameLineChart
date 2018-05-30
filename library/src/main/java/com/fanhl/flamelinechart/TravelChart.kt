@@ -163,6 +163,7 @@ class TravelChart @JvmOverloads constructor(
      */
     class Data<T : IItem> {
         val list = BoundList<T>()
+        // 添加数据时，判断数据是否在屏幕外，再决定是否 invalidate()
     }
 
     /**
