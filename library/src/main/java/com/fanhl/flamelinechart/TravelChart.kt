@@ -113,7 +113,7 @@ class TravelChart @JvmOverloads constructor(
         if (scroller.computeScrollOffset()) {
 
             //这里调用View的scrollTo()完成实际的滚动
-            scrollTo(scroller.currX, scroller.currY)
+//            scrollTo(scroller.currX, scroller.currY)
 
             //必须调用该方法，否则不一定能看到滚动效果
             postInvalidate()
