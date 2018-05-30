@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
+import android.widget.Scroller
 import com.fanhl.flamelinechart.R
 import com.fanhl.flamelinechart.Range
 import java.util.*
@@ -22,8 +23,9 @@ class TravelChart @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
-    private var paint = Paint()
-    private var path = Path()
+    private val paint = Paint()
+    private val path = Path()
+    private val scroller = Scroller(context)
 
     // --------------------------------- 输入 ---------------------------
 
