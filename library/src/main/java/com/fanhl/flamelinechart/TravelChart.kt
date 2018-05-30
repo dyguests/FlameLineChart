@@ -8,7 +8,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Scroller
+import android.widget.OverScroller
 import com.fanhl.flamelinechart.R
 import com.fanhl.flamelinechart.Range
 import java.util.*
@@ -26,7 +26,7 @@ class TravelChart @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
     private val paint = Paint()
     private val path = Path()
-    private val scroller = Scroller(context)
+    private val scroller = OverScroller(context)
 
     // --------------------------------- 输入 ---------------------------
 
