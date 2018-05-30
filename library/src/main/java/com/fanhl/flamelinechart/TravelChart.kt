@@ -157,7 +157,7 @@ class TravelChart @JvmOverloads constructor(
 
         var yPercent = (vector2.y - yMin) / yBound
 
-        val x = vector2.x
+        val x = width / 2 + (vector2.x - centerX - centerXOffset) * xInterval
         val y = (1 - yPercent) * height
 
 //        throw Exception("yMin:$yMin,yMax:$yMax")
