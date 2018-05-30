@@ -76,13 +76,13 @@ class TravelChart @JvmOverloads constructor(
                         add(DefaultItem(x, y))
                     }
                     add(0f, 1f)
-                    add(100f, 200f)
-                    add(200f, 5f)
-                    add(300f, 400f)
-                    add(400f, 100f)
-                    add(500f, 20f)
-                    add(600f, 20f)
-                    add(700f, 200f)
+                    add(1f, 200f)
+                    add(2f, 5f)
+                    add(3f, 400f)
+                    add(4f, 100f)
+                    add(5f, 20f)
+                    add(6f, 20f)
+                    add(7f, 200f)
                 }
             }
         }
