@@ -75,8 +75,8 @@ class TravelChart @JvmOverloads constructor(
 
         xInterval = a.getDimensionPixelOffset(R.styleable.TravelChart_xInterval, resources.getDimensionPixelOffset(R.dimen.x_interval_default))
 
-        gradientStart = a.getColor(R.styleable.TravelChart_gradientStart, resources.getColor(R.color.gradient_start, null))
-        gradientEnd = a.getColor(R.styleable.TravelChart_gradientEnd, resources.getColor(R.color.gradient_start, null))
+        gradientStart = a.getColor(R.styleable.TravelChart_gradientStart, resources.getColor(R.color.gradient_start))
+        gradientEnd = a.getColor(R.styleable.TravelChart_gradientEnd, resources.getColor(R.color.gradient_start))
 
         a.recycle()
 
@@ -143,6 +143,7 @@ class TravelChart @JvmOverloads constructor(
         val saveCount = canvas.save()
         canvas.translate(paddingLeft.toFloat(), paddingTop.toFloat())
 
+        //fixme 把这个移到之前的方法中去
         paint.shader = LinearGradient(0f, 0f, width.toFloat(), 0f, gradientStart, gradientEnd, Shader.TileMode.MIRROR)
 
         if (data != null) {
