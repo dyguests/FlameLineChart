@@ -64,8 +64,8 @@ class TravelChart @JvmOverloads constructor(
 
         if (isInEditMode) {
             dataParser = object : TravelChart.DataParser {
-                override fun parseItem(item: Any): Vector2 {
-                    val itemItem = item as? DefaultItem ?: return Vector2(0f, 0f)
+                override fun parseItem(item: IItem): Vector2 {
+                    val itemItem = Vector2(item.getXAxis(), item.getYAxis())
 
                     return Vector2(itemItem.x, itemItem.y)
                 }
@@ -177,7 +177,8 @@ class TravelChart @JvmOverloads constructor(
      * TravelChart的图表上关键点的数据结构
      */
     interface IItem {
-        fun getYAxies(): Float
+        fun getXAxis(): Float
+        fun getYAxis(): Float
     }
 
     /**
@@ -187,7 +188,11 @@ class TravelChart @JvmOverloads constructor(
             var x: Float,
             var y: Float
     ) : IItem {
-        override fun getYAxies(): Float {
+        override fun getXAxis(): Float {
+            return x
+        }
+
+        override fun getYAxis(): Float {
             return y
         }
     }
@@ -197,7 +202,7 @@ class TravelChart @JvmOverloads constructor(
      */
     interface DataParser {
 
-        fun parseItem(item: Any): Vector2
+        fun parseItem(item: IItem): Vector2
     }
 
     /**
@@ -205,7 +210,7 @@ class TravelChart @JvmOverloads constructor(
      */
     class DefaultDataParser : DataParser {
 
-        override fun parseItem(item: Any): Vector2 {
+        override fun parseItem(item: IItem): Vector2 {
             return Vector2(0f, 0f)
         }
     }
@@ -225,22 +230,22 @@ class TravelChart @JvmOverloads constructor(
 
         override fun add(element: T): Boolean {
             val add = super.add(element)
-            min = minOf(min, element.getYAxies())
-            max = maxOf(max, element.getYAxies())
+            min = minOf(min, element.getYAxis())
+            max = maxOf(max, element.getYAxis())
             return add
         }
 
         override fun add(index: Int, element: T) {
             super.add(index, element)
-            min = minOf(min, element.getYAxies())
-            max = maxOf(max, element.getYAxies())
+            min = minOf(min, element.getYAxis())
+            max = maxOf(max, element.getYAxis())
         }
 
         override fun addAll(elements: Collection<T>): Boolean {
             val addAll = super.addAll(elements)
             elements.forEach { element ->
-                min = minOf(min, element.getYAxies())
-                max = maxOf(max, element.getYAxies())
+                min = minOf(min, element.getYAxis())
+                max = maxOf(max, element.getYAxis())
 
             }
             return addAll
@@ -249,8 +254,8 @@ class TravelChart @JvmOverloads constructor(
         override fun addAll(index: Int, elements: Collection<T>): Boolean {
             val addAll = super.addAll(index, elements)
             elements.forEach { element ->
-                min = minOf(min, element.getYAxies())
-                max = maxOf(max, element.getYAxies())
+                min = minOf(min, element.getYAxis())
+                max = maxOf(max, element.getYAxis())
 
             }
             return addAll

@@ -13,8 +13,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         chart_travel.dataParser = object : TravelChart.DataParser {
-            override fun parseItem(item: Any): Vector2 {
-                val itemItem = item as? Item ?: return Vector2(0f, 0f)
+            override fun parseItem(item: TravelChart.IItem): Vector2 {
+                val itemItem = Vector2(item.getXAxis(), item.getYAxis())
 
                 return Vector2(itemItem.x, itemItem.y)
             }
@@ -38,7 +38,11 @@ class MainActivity : AppCompatActivity() {
             var x: Float,
             var y: Float
     ) : TravelChart.IItem {
-        override fun getYAxies(): Float {
+        override fun getXAxis(): Float {
+            return x
+        }
+
+        override fun getYAxis(): Float {
             return y
         }
     }
