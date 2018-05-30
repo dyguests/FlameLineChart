@@ -40,6 +40,10 @@ class MainActivity : AppCompatActivity() {
                 add(13f, 400f)
             }
         }
+
+        fab_scroll.setOnClickListener {
+            chart_travel.changeCenterX(3)
+        }
     }
 
     data class Item(

@@ -49,12 +49,7 @@ class TravelChart @JvmOverloads constructor(
 
     /** 居中的X的值 */
     private var centerX = 0
-        set(value) {
-            if (field == value) {
-                return
-            }
-            field = value
-        }
+
     /** 居中的X的偏移值 in (-1,1) */
     private var centerXOffset = 0f
 
@@ -113,6 +108,19 @@ class TravelChart @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
+    override fun computeScroll() {
+        //先判断mScroller滚动是否完成
+        if (scroller.computeScrollOffset()) {
+
+            //这里调用View的scrollTo()完成实际的滚动
+            scrollTo(scroller.currX, scroller.currY)
+
+            //必须调用该方法，否则不一定能看到滚动效果
+            postInvalidate()
+        }
+        super.computeScroll()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -139,22 +147,26 @@ class TravelChart @JvmOverloads constructor(
 
             canvas.translate(drawCurvePaddingLeft, drawCurvePaddingTop)
 
+            // FIXME: 2018/5/30 fanhl 只绘制屏幕内的数据
+
             val list = data!!.list
             val yMin = list.min
             val yMax = list.max
             val iterator = list.iterator()
             if (iterator.hasNext()) {
-                val vector2 = dataParser.parseItem(iterator.next() ?: return)
+                run {
+                    val vector2 = dataParser.parseItem(iterator.next())
 
-                path.reset()
-                val (x, y) = projectionToCanvas(drawCurveWidth, drawCurveHeight, vector2, yMin, yMax)
-                path.moveTo(x, y)
+                    path.reset()
+                    val (x, y) = projectionToCanvas(drawCurveWidth, drawCurveHeight, vector2, yMin, yMax)
+                    path.moveTo(x, y)
+                }
 
                 //验证有多个点
                 var isLine = false
 
                 while (iterator.hasNext()) {
-                    val vector2 = dataParser.parseItem(iterator.next() ?: return)
+                    val vector2 = dataParser.parseItem(iterator.next())
                     val (x, y) = projectionToCanvas(drawCurveWidth, drawCurveHeight, vector2, yMin, yMax)
                     path.lineTo(x, y)
                     isLine = true
@@ -188,6 +200,14 @@ class TravelChart @JvmOverloads constructor(
 //        throw Exception("yMin:$yMin,yMax:$yMax")
 
         return Vector2(x, y)
+    }
+
+    fun changeCenterX(centerX: Int) {
+        this.centerX = centerX
+        this.centerXOffset = 0f
+
+        scroller.startScroll(scrollX, scrollY, 200, 0)
+        invalidate()
     }
 
     /**
