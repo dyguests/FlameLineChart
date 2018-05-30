@@ -8,6 +8,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import com.fanhl.flamelinechart.R
+import com.fanhl.flamelinechart.Range
 import java.util.*
 
 
@@ -47,6 +48,12 @@ class TravelChart @JvmOverloads constructor(
     private var centerX = 0
     /** 居中的X的偏移值 in (-1,1) */
     private var centerXOffset = 0f
+
+    /**
+     *  活动的x轴区间
+     *  非区间的与区间内的显示不一样。（用来区分各月份的数据）
+     */
+    var activeXRange = Range(0f, 5f)
 
     init {
         paint.style = Paint.Style.STROKE
