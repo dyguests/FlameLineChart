@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.OverScroller
@@ -50,7 +51,7 @@ class TravelChart @JvmOverloads constructor(
     /** 居中的X的值 */
     private var centerX = 0
 
-    /** 居中的X的偏移值 in (-1,1) */
+    /** 居中的X的偏移值 in (-0.5,0.5] */
     private var centerXOffset = 0f
 
     /**
@@ -114,6 +115,11 @@ class TravelChart @JvmOverloads constructor(
 
             //这里调用View的scrollTo()完成实际的滚动
 //            scrollTo(scroller.currX, scroller.currY)
+            val (centerX, centerXOffset) = calculationCenterX(scroller.currX)
+            this.centerX = centerX
+            this.centerXOffset = centerXOffset
+
+            Log.d(TAG, "computeScroll: centerX:$centerX,centerXOffset:$centerXOffset")
 
             //必须调用该方法，否则不一定能看到滚动效果
             postInvalidate()
@@ -203,11 +209,33 @@ class TravelChart @JvmOverloads constructor(
     }
 
     fun changeCenterX(centerX: Int) {
-        this.centerX = centerX
-        this.centerXOffset = 0f
-
-        scroller.startScroll(scrollX, scrollY, 200, 0)
+//        this.centerX = centerX
+//        this.centerXOffset = 0f
+        val startScrollX = calculationScrollX(this.centerX, 0f)
+        val endScrollX = calculationScrollX(centerX, 0f)
+        scroller.startScroll(startScrollX, 0, endScrollX - startScrollX, 0)
         invalidate()
+    }
+
+    /**
+     * 根据centerX与centerXOffset计算出scrollX
+     */
+    private fun calculationScrollX(centerX: Int, centerXOffset: Float): Int {
+        return ((centerX + centerXOffset) * xInterval).toInt()
+    }
+
+    /**
+     * 根据scrollX计算出centerX与centerXOffset
+     */
+    private fun calculationCenterX(scrollX: Int): Pair<Int, Float> {
+        val centerX = scrollX / xInterval
+        val centerXOffset = (scrollX % xInterval).toFloat() / xInterval
+
+        return Pair(centerX, centerXOffset)
+    }
+
+    companion object {
+        val TAG = TravelChart::class.java.simpleName!!
     }
 
     /**
