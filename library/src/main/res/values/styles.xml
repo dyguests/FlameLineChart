@@ -2,6 +2,6 @@
 <resources>
 
     <style name="Widget_Travel_Chart">
-        <item name="xInterval">@dimen/xInterval_default</item>
+        <item name="xInterval">@dimen/x_interval_default</item>
     </style>
 </resources>

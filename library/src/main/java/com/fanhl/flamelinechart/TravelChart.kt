@@ -57,7 +57,7 @@ class TravelChart @JvmOverloads constructor(
         val resources = context.resources
         val a = context.obtainStyledAttributes(attrs, R.styleable.TravelChart, defStyleAttr, R.style.Widget_Travel_Chart)
 
-        xInterval = a.getDimensionPixelOffset(R.styleable.TravelChart_xInterval, resources.getDimensionPixelOffset(R.dimen.xInterval_default))
+        xInterval = a.getDimensionPixelOffset(R.styleable.TravelChart_xInterval, resources.getDimensionPixelOffset(R.dimen.x_interval_default))
 
         a.recycle()
 
