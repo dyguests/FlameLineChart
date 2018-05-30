@@ -68,7 +68,6 @@ class TravelChart @JvmOverloads constructor(
 
         a.recycle()
 
-
         if (isInEditMode) {
             dataParser = object : TravelChart.DataParser {
                 override fun parseItem(item: IItem): Vector2 {
