@@ -10,6 +10,8 @@ import android.widget.OverScroller
 import java.util.*
 import android.graphics.Shader
 import android.graphics.LinearGradient
+import android.support.v4.content.ContextCompat
+import android.view.VelocityTracker
 
 
 /**
@@ -22,13 +24,22 @@ class TravelChart @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
-    private val paint = Paint()
-    private val path = Path()
-    private val scroller = OverScroller(context)
+    private val paint by lazy { Paint() }
+    private val path by lazy { Path() }
+    private val scroller by lazy { OverScroller(context) }
+    /** 速度管理 */
+    private val velocityTracker by lazy { VelocityTracker.obtain() }
 
     // --------------------------------- 输入 ---------------------------
     /** 水平两个坐标点的间距 */
     var xInterval = 0
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            invalidate()
+        }
 
     /** 曲线的水平渐变颜色起始值 */
     var gradientStart = 0
@@ -73,8 +84,8 @@ class TravelChart @JvmOverloads constructor(
 
         xInterval = a.getDimensionPixelOffset(R.styleable.TravelChart_xInterval, resources.getDimensionPixelOffset(R.dimen.x_interval_default))
 
-        gradientStart = a.getColor(R.styleable.TravelChart_gradientStart, resources.getColor(R.color.gradient_start))
-        gradientEnd = a.getColor(R.styleable.TravelChart_gradientEnd, resources.getColor(R.color.gradient_start))
+        gradientStart = a.getColor(R.styleable.TravelChart_gradientStart, ContextCompat.getColor(context, R.color.gradient_start))
+        gradientEnd = a.getColor(R.styleable.TravelChart_gradientEnd, ContextCompat.getColor(context, R.color.gradient_start))
 
         a.recycle()
 
@@ -110,7 +121,30 @@ class TravelChart @JvmOverloads constructor(
         }
     }
 
+    override fun performClick(): Boolean {
+        return super.performClick()
+    }
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        velocityTracker.addMovement(event)
+
+        val action = event?.action ?: return false
+
+        when (action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_DOWN -> {
+                if (!scroller.isFinished) {
+                    scroller.abortAnimation()
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+            }
+            MotionEvent.ACTION_UP -> {
+            }
+            MotionEvent.ACTION_CANCEL -> {
+            }
+            else -> {
+            }
+        }
         return super.onTouchEvent(event)
     }
 
@@ -260,7 +294,7 @@ class TravelChart @JvmOverloads constructor(
 //        this.centerXOffset = 0f
         val startScrollX = calculationScrollX(this.centerX, 0f)
         val endScrollX = calculationScrollX(centerX, 0f)
-        scroller.startScroll(startScrollX, 0, endScrollX - startScrollX, 0)
+        scroller.startScroll(startScrollX, 0, endScrollX - startScrollX, 0, AUTO_SCROLL_DURATION_DEFAULT)
         invalidate()
     }
 
@@ -293,6 +327,9 @@ class TravelChart @JvmOverloads constructor(
 
     companion object {
         val TAG = TravelChart::class.java.simpleName!!
+
+        private const val AUTO_SCROLL_DURATION_DEFAULT = 1000
+
     }
 
     /**
