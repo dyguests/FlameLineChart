@@ -12,6 +12,7 @@ import android.graphics.Shader
 import android.graphics.LinearGradient
 import android.support.v4.content.ContextCompat
 import android.view.VelocityTracker
+import android.view.ViewConfiguration
 
 
 /**
@@ -29,6 +30,8 @@ class TravelChart @JvmOverloads constructor(
     private val scroller by lazy { OverScroller(context) }
     /** 速度管理 */
     private val velocityTracker by lazy { VelocityTracker.obtain() }
+
+    private var mTouchSlop: Int = 0
 
     // --------------------------------- 输入 ---------------------------
     /** 水平两个坐标点的间距 */
@@ -72,12 +75,23 @@ class TravelChart @JvmOverloads constructor(
      */
     var activeXRange = Range(0f, 7f)
 
+
+    /**
+     * Position of the last motion event.
+     */
+    private var mLastMotionX: Int = 0
+
     init {
         paint.style = Paint.Style.STROKE
         paint.strokeJoin = Paint.Join.ROUND
         paint.strokeWidth = 10f
         paint.isAntiAlias = true
         paint.color = Color.RED
+
+        val configuration = ViewConfiguration.get(context)
+        mTouchSlop = configuration.scaledTouchSlop
+        // see more config : /android/widget/HorizontalScrollView.java:222
+
 
         val resources = context.resources
         val a = context.obtainStyledAttributes(attrs, R.styleable.TravelChart, defStyleAttr, R.style.Widget_Travel_Chart)
@@ -125,18 +139,22 @@ class TravelChart @JvmOverloads constructor(
         return super.performClick()
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        velocityTracker.addMovement(event)
+    override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        velocityTracker.addMovement(ev)
 
-        val action = event?.action ?: return false
+        val action = ev?.action ?: return false
 
         when (action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 if (!scroller.isFinished) {
                     scroller.abortAnimation()
                 }
+
+                mLastMotionX = ev.x.toInt()
             }
             MotionEvent.ACTION_MOVE -> {
+                val x = ev.x.toInt()
+                var deltaX = mLastMotionX - x
             }
             MotionEvent.ACTION_UP -> {
             }
@@ -145,7 +163,7 @@ class TravelChart @JvmOverloads constructor(
             else -> {
             }
         }
-        return super.onTouchEvent(event)
+        return super.onTouchEvent(ev)
     }
 
     override fun computeScroll() {
@@ -328,7 +346,7 @@ class TravelChart @JvmOverloads constructor(
     companion object {
         val TAG = TravelChart::class.java.simpleName!!
 
-        private const val AUTO_SCROLL_DURATION_DEFAULT = 1000
+        private const val AUTO_SCROLL_DURATION_DEFAULT = 250
 
     }
 
