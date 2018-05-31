@@ -260,7 +260,7 @@ class TravelChart @JvmOverloads constructor(
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity.toFloat())
                     val initialVelocity = velocityTracker.getXVelocity().toInt()
 
-                    if (getChildCount() > 0) {
+                    if (getChildCount() > 1) {
                         if (Math.abs(initialVelocity) > mMinimumVelocity) {
                             fling(-initialVelocity)
                         } else {
@@ -278,10 +278,14 @@ class TravelChart @JvmOverloads constructor(
 //                        mEdgeGlowLeft.onRelease()
 //                        mEdgeGlowRight.onRelease()
 //                    }
+
+                    if (scroller.isFinished && Math.abs(centerXOffset) > 0f) {
+                        changeCenterX(centerX)
+                    }
                 }
             }
             MotionEvent.ACTION_CANCEL -> {
-                if (mIsBeingDragged && getChildCount() > 0) {
+                if (mIsBeingDragged && getChildCount() > 1) {
                     if (scroller.springBack(mScrollX, mScrollY, 0, getScrollRange(), 0, 0)) {
                         CompatibleHelper.postInvalidateOnAnimation(this)
                     }
@@ -293,6 +297,10 @@ class TravelChart @JvmOverloads constructor(
 //                        mEdgeGlowLeft.onRelease()
 //                        mEdgeGlowRight.onRelease()
 //                    }
+
+                    if (scroller.isFinished && Math.abs(centerXOffset) > 0f) {
+                        changeCenterX(centerX)
+                    }
                 }
             }
         }
@@ -538,7 +546,8 @@ class TravelChart @JvmOverloads constructor(
         val startScrollX = calculationScrollX(this.centerX, centerXOffset)
         val endScrollX = calculationScrollX(centerX, 0f)
         scroller.startScroll(startScrollX, 0, endScrollX - startScrollX, 0, AUTO_SCROLL_DURATION_DEFAULT)
-        invalidate()
+//        invalidate()
+        CompatibleHelper.postInvalidateOnAnimation(this)
     }
 
     /**
