@@ -289,6 +289,12 @@ class TravelChart @JvmOverloads constructor(
         canvas.restoreToCount(saveCount)
     }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+
+        // Calling this with the present values causes it to re-claim them
+        scrollTo(mScrollX, 0)
+    }
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
@@ -309,6 +315,8 @@ class TravelChart @JvmOverloads constructor(
         } else {
             super.scrollTo(scrollX, scrollY)
         }
+
+        awakenScrollBars()
     }
 
     /**
