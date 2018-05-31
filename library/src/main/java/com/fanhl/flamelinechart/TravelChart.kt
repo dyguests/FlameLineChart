@@ -14,6 +14,8 @@ import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
+import android.R.attr.y
+import android.R.attr.x
 
 
 /**
@@ -52,6 +54,12 @@ class TravelChart @JvmOverloads constructor(
             val (centerX, centerXOffset) = calculationCenterX(value)
             this.centerX = centerX
             this.centerXOffset = centerXOffset
+        }
+    private var mScrollY: Int
+        get() {
+            return 0
+        }
+        set(value) {
         }
 
     // --------------------------------- 输入 ---------------------------
@@ -247,6 +255,24 @@ class TravelChart @JvmOverloads constructor(
         return super.onTouchEvent(ev)
     }
 
+    override fun scrollTo(x: Int, y: Int) {
+        if (mScrollX !== x || 0 !== y) {
+            val oldX = mScrollX
+            val oldY = mScrollY
+            mScrollX = x
+            mScrollY = y
+//            invalidateParentCaches()
+            onScrollChanged(mScrollX, mScrollY, oldX, oldY)
+            if (!awakenScrollBars()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    postInvalidateOnAnimation()
+                } else {
+                    postInvalidate()
+                }
+            }
+        }
+    }
+
     override fun computeScroll() {
         //先判断mScroller滚动是否完成
         if (scroller.computeScrollOffset()) {
@@ -314,7 +340,8 @@ class TravelChart @JvmOverloads constructor(
                 scroller.springBack(mScrollX, 0, 0, getScrollRange(), 0, 0)
             }
         } else {
-            super.scrollTo(scrollX, scrollY)
+//            super.scrollTo(scrollX, scrollY)
+            scrollTo(scrollX, scrollY)
         }
 
         awakenScrollBars()
