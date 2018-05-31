@@ -10,6 +10,7 @@ import android.widget.OverScroller
 import java.util.*
 import android.graphics.Shader
 import android.graphics.LinearGradient
+import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
@@ -28,10 +29,25 @@ class TravelChart @JvmOverloads constructor(
     private val paint by lazy { Paint() }
     private val path by lazy { Path() }
     private val scroller by lazy { OverScroller(context) }
+
+    /**
+     * True if the user is currently dragging this ScrollView around. This is
+     * not the same as 'is being flinged', which can be checked by
+     * mScroller.isFinished() (flinging begins when the user lifts his finger).
+     */
+    private var mIsBeingDragged = false
     /** 速度管理 */
     private val velocityTracker by lazy { VelocityTracker.obtain() }
 
     private var mTouchSlop: Int = 0
+    private var mMinimumVelocity: Int = 0
+    private var mMaximumVelocity: Int = 0
+    private var mOverscrollDistance: Int = 0
+
+    private val mScrollX: Int
+        get() {
+            return ((centerX + centerXOffset) * xInterval).toInt()
+        }
 
     // --------------------------------- 输入 ---------------------------
     /** 水平两个坐标点的间距 */
@@ -90,6 +106,9 @@ class TravelChart @JvmOverloads constructor(
 
         val configuration = ViewConfiguration.get(context)
         mTouchSlop = configuration.scaledTouchSlop
+        mMinimumVelocity = configuration.scaledMinimumFlingVelocity
+        mMaximumVelocity = configuration.scaledMaximumFlingVelocity
+        mOverscrollDistance = configuration.scaledOverscrollDistance
         // see more config : /android/widget/HorizontalScrollView.java:222
 
 
@@ -146,6 +165,11 @@ class TravelChart @JvmOverloads constructor(
 
         when (action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
+                mIsBeingDragged = !scroller.isFinished
+                if (mIsBeingDragged) {
+                    this.parent?.requestDisallowInterceptTouchEvent(true)
+                }
+
                 if (!scroller.isFinished) {
                     scroller.abortAnimation()
                 }
@@ -155,6 +179,58 @@ class TravelChart @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val x = ev.x.toInt()
                 var deltaX = mLastMotionX - x
+                if (!mIsBeingDragged && Math.abs(deltaX) > mTouchSlop) {
+                    val parent = parent
+                    parent?.requestDisallowInterceptTouchEvent(true)
+                    mIsBeingDragged = true
+                    if (deltaX > 0) {
+                        deltaX -= mTouchSlop
+                    } else {
+                        deltaX += mTouchSlop
+                    }
+                }
+                if (mIsBeingDragged) {
+                    // Scroll to follow the motion event
+                    mLastMotionX = x
+
+                    val oldX = mScrollX
+                    val oldY = 0
+                    val range = getScrollRange()
+                    val canOverscroll = overScrollMode == View.OVER_SCROLL_ALWAYS || overScrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0
+
+                    // Calling overScrollBy will call onOverScrolled, which
+                    // calls onScrollChanged if applicable.
+                    if (overScrollBy(deltaX, 0, mScrollX, 0, range, 0, mOverscrollDistance, 0, true)) {
+                        // Break our velocity if we hit a scroll barrier.
+                        velocityTracker.clear()
+                    }
+
+                    if (canOverscroll) {
+                        val pulledToX = oldX + deltaX
+                        if (pulledToX < 0) {
+                            // 边缘效果
+//                            mEdgeGlowLeft.onPull(deltaX.toFloat() / width, 1f - ev.getY(activePointerIndex) / height)
+//                            if (!mEdgeGlowRight.isFinished()) {
+//                                mEdgeGlowRight.onRelease()
+//                            }
+                        } else if (pulledToX > range) {
+                            // 边缘效果
+//                            mEdgeGlowRight.onPull(deltaX.toFloat() / width, ev.getY(activePointerIndex) / height)
+//                            if (!mEdgeGlowLeft.isFinished()) {
+//                                mEdgeGlowLeft.onRelease()
+//                            }
+                        }
+//                        if (mEdgeGlowLeft != null && (!mEdgeGlowLeft.isFinished() || !mEdgeGlowRight.isFinished())) {
+//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+//                                postInvalidateOnAnimation()
+//                            } else {
+//                                postInvalidate()
+//                            }
+//                        }
+                    }
+
+
+                }
             }
             MotionEvent.ACTION_UP -> {
             }
@@ -180,7 +256,11 @@ class TravelChart @JvmOverloads constructor(
             activeXRange.end = (centerX - centerX % 7 + 7).toFloat()
 
             //必须调用该方法，否则不一定能看到滚动效果
-            postInvalidate()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                postInvalidateOnAnimation()
+            } else {
+                postInvalidate()
+            }
         }
         super.computeScroll()
     }
@@ -288,6 +368,14 @@ class TravelChart @JvmOverloads constructor(
         canvas.drawLine((validWidth / 2).toFloat(), 0F, (validWidth / 2).toFloat(), validHeight.toFloat(), paint)
     }
 
+    private fun getScrollRange(): Int {
+        var scrollRange = 0
+        data?.list?.size?.let {
+            scrollRange = it * xInterval
+        }
+        return scrollRange
+    }
+
     /**
      * 将data中的item数据点的坐标系转换成手机屏幕坐标系
      */
@@ -337,8 +425,13 @@ class TravelChart @JvmOverloads constructor(
      * 根据scrollX计算出centerX与centerXOffset
      */
     private fun calculationCenterX(scrollX: Int): Pair<Int, Float> {
-        val centerX = scrollX / xInterval
-        val centerXOffset = (scrollX % xInterval).toFloat() / xInterval
+        var centerX = scrollX / xInterval
+        var centerXOffset = (scrollX % xInterval).toFloat() / xInterval
+        //注意 centerXOffset 的 值在 区间 (-0.5,0.5]中
+        if (centerXOffset > 0.5f) {
+            centerX += 1
+            centerXOffset -= 1
+        }
 
         return Pair(centerX, centerXOffset)
     }
