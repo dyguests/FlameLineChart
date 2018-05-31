@@ -20,7 +20,7 @@ import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 
 
 /**
- * 行驶数据图表（首页>Go）
+ * 数据图表
  *
  * @author fanhl
  */
