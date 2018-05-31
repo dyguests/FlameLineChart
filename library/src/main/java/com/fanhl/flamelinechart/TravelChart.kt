@@ -16,6 +16,7 @@ import android.view.VelocityTracker
 import android.view.ViewConfiguration
 import android.R.attr.y
 import android.R.attr.x
+import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 
 
 /**
@@ -255,13 +256,78 @@ class TravelChart @JvmOverloads constructor(
                 }
             }
             MotionEvent.ACTION_UP -> {
+                if (mIsBeingDragged) {
+                    velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity.toFloat())
+                    val initialVelocity = velocityTracker.getXVelocity().toInt()
+
+                    if (getChildCount() > 0) {
+                        if (Math.abs(initialVelocity) > mMinimumVelocity) {
+                            fling(-initialVelocity)
+                        } else {
+                            if (scroller.springBack(mScrollX, mScrollY, 0, getScrollRange(), 0, 0)) {
+                                CompatibleHelper.postInvalidateOnAnimation(this)
+                            }
+                        }
+                    }
+
+//                    mActivePointerId = INVALID_POINTER
+                    mIsBeingDragged = false
+                    recycleVelocityTracker()
+
+//                    if (mEdgeGlowLeft != null) {
+//                        mEdgeGlowLeft.onRelease()
+//                        mEdgeGlowRight.onRelease()
+//                    }
+                }
             }
             MotionEvent.ACTION_CANCEL -> {
-            }
-            else -> {
+                if (mIsBeingDragged && getChildCount() > 0) {
+                    if (scroller.springBack(mScrollX, mScrollY, 0, getScrollRange(), 0, 0)) {
+                        CompatibleHelper.postInvalidateOnAnimation(this)
+                    }
+//                    mActivePointerId = INVALID_POINTER
+                    mIsBeingDragged = false
+                    recycleVelocityTracker()
+
+//                    if (mEdgeGlowLeft != null) {
+//                        mEdgeGlowLeft.onRelease()
+//                        mEdgeGlowRight.onRelease()
+//                    }
+                }
             }
         }
         return true
+    }
+
+    /**
+     * Fling the scroll view
+     *
+     * @param velocityX The initial velocity in the X direction. Positive
+     * numbers mean that the finger/cursor is moving down the screen,
+     * which means we want to scroll towards the left.
+     */
+    private fun fling(velocityX: Int) {
+        if (getChildCount() > 0) {
+            val width = width - paddingRight - paddingLeft
+            val right = getScrollRange()
+
+            scroller.fling(mScrollX, mScrollY, velocityX, 0, 0, Math.max(0, right - width), 0, 0, width / 2, 0)
+
+            val movingRight = velocityX > 0
+
+            val currentFocused = findFocus()
+            var newFocused: View? = null// findFocusableViewInMyBounds(movingRight, scroller.finalX, currentFocused)
+
+            if (newFocused == null) {
+                newFocused = this
+            }
+
+            if (newFocused !== currentFocused) {
+                newFocused.requestFocus(if (movingRight) View.FOCUS_RIGHT else View.FOCUS_LEFT)
+            }
+
+            CompatibleHelper.postInvalidateOnAnimation(this)
+        }
     }
 
     override fun scrollTo(x: Int, y: Int) {
@@ -433,12 +499,21 @@ class TravelChart @JvmOverloads constructor(
         canvas.drawLine((validWidth / 2).toFloat(), 0F, (validWidth / 2).toFloat(), validHeight.toFloat(), paint)
     }
 
+    private fun getChildCount(): Int {
+        return data?.list?.size ?: 0
+    }
+
     private fun getScrollRange(): Int {
         var scrollRange = 0
         data?.list?.size?.let {
             scrollRange = it * xInterval
         }
         return scrollRange
+    }
+
+    private fun recycleVelocityTracker() {
+        //这里临时改用 by lazy (为啥要recycle啊？)
+//        velocityTracker.recycle()
     }
 
     /**
