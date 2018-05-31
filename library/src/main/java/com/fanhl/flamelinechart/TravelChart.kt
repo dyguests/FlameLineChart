@@ -295,6 +295,7 @@ class TravelChart @JvmOverloads constructor(
         // Calling this with the present values causes it to re-claim them
         scrollTo(mScrollX, 0)
     }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
