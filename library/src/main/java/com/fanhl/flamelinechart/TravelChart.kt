@@ -339,11 +339,7 @@ class TravelChart @JvmOverloads constructor(
 //            invalidateParentCaches()
             onScrollChanged(mScrollX, mScrollY, oldX, oldY)
             if (!awakenScrollBars()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    postInvalidateOnAnimation()
-                } else {
-                    postInvalidate()
-                }
+                CompatibleHelper.postInvalidateOnAnimation(this)
             }
         }
     }
@@ -359,11 +355,7 @@ class TravelChart @JvmOverloads constructor(
             this.centerXOffset = centerXOffset
 
             //必须调用该方法，否则不一定能看到滚动效果
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                postInvalidateOnAnimation()
-            } else {
-                postInvalidate()
-            }
+            CompatibleHelper.postInvalidateOnAnimation(this)
         }
         super.computeScroll()
     }
