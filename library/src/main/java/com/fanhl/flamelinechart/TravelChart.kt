@@ -311,7 +311,7 @@ class TravelChart @JvmOverloads constructor(
             val width = width - paddingRight - paddingLeft
             val right = getScrollRange()
 
-            scroller.fling(mScrollX, mScrollY, velocityX, 0, 0, Math.max(0, right - width), 0, 0, width / 2, 0)
+            scroller.fling(mScrollX, mScrollY, velocityX, 0, 0, getScrollRange(), 0, 0, width / 2, 0)
 
             val movingRight = velocityX > 0
 
@@ -497,8 +497,8 @@ class TravelChart @JvmOverloads constructor(
 
     private fun getScrollRange(): Int {
         var scrollRange = 0
-        data?.list?.size?.let {
-            scrollRange = it * xInterval
+        data?.list?.size?.takeIf { it > 0 }?.let {
+            scrollRange = (it - 1) * xInterval
         }
         return scrollRange
     }
