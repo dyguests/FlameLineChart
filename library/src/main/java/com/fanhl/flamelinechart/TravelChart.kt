@@ -94,6 +94,15 @@ class TravelChart @JvmOverloads constructor(
 
     /** 居中的X的值 */
     private var centerX = 0
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+
+            activeXRange.start = (centerX - centerX % 7).toFloat()
+            activeXRange.end = (centerX - centerX % 7 + 7).toFloat()
+        }
 
     /** 居中的X的偏移值 in (-0.5,0.5] */
     private var centerXOffset = 0f
@@ -252,7 +261,7 @@ class TravelChart @JvmOverloads constructor(
             else -> {
             }
         }
-        return super.onTouchEvent(ev)
+        return true
     }
 
     override fun scrollTo(x: Int, y: Int) {
@@ -282,9 +291,6 @@ class TravelChart @JvmOverloads constructor(
             val (centerX, centerXOffset) = calculationCenterX(scroller.currX)
             this.centerX = centerX
             this.centerXOffset = centerXOffset
-
-            activeXRange.start = (centerX - centerX % 7).toFloat()
-            activeXRange.end = (centerX - centerX % 7 + 7).toFloat()
 
             //必须调用该方法，否则不一定能看到滚动效果
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
