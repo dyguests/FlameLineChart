@@ -44,9 +44,14 @@ class TravelChart @JvmOverloads constructor(
     private var mMaximumVelocity: Int = 0
     private var mOverscrollDistance: Int = 0
 
-    private val mScrollX: Int
+    private var mScrollX: Int
         get() {
-            return ((centerX + centerXOffset) * xInterval).toInt()
+            return calculationScrollX(centerX, centerXOffset)
+        }
+        set(value) {
+            val (centerX, centerXOffset) = calculationCenterX(value)
+            this.centerX = centerX
+            this.centerXOffset = centerXOffset
         }
 
     // --------------------------------- 输入 ---------------------------
@@ -286,6 +291,24 @@ class TravelChart @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    override fun onOverScrolled(scrollX: Int, scrollY: Int, clampedX: Boolean, clampedY: Boolean) {
+        super.onOverScrolled(scrollX, scrollY, clampedX, clampedY)
+        // Treat animating scrolls differently; see #computeScroll() for why.
+        if (!scroller.isFinished) {
+            val oldX = mScrollX
+            val oldY = 0
+            mScrollX = scrollX
+//            mScrollY = scrollY
+//            invalidateParentIfNeeded()
+            onScrollChanged(mScrollX, 0, oldX, oldY)
+            if (clampedX) {
+                scroller.springBack(mScrollX, 0, 0, getScrollRange(), 0, 0)
+            }
+        } else {
+            super.scrollTo(scrollX, scrollY)
+        }
     }
 
     /**
