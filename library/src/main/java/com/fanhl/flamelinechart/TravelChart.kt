@@ -530,7 +530,12 @@ class TravelChart @JvmOverloads constructor(
     fun changeCenterX(centerX: Int) {
 //        this.centerX = centerX
 //        this.centerXOffset = 0f
-        val startScrollX = calculationScrollX(this.centerX, 0f)
+
+        if (!scroller.isFinished) {
+            scroller.abortAnimation()
+        }
+
+        val startScrollX = calculationScrollX(this.centerX, centerXOffset)
         val endScrollX = calculationScrollX(centerX, 0f)
         scroller.startScroll(startScrollX, 0, endScrollX - startScrollX, 0, AUTO_SCROLL_DURATION_DEFAULT)
         invalidate()
